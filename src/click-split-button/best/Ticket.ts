@@ -50,7 +50,8 @@ export class Ticket {
     }
 
     split(type?: SplitType) {
-        switch (type) {
+        const currentSplitType = type ?? SplitType.ByEvenly;
+        switch (currentSplitType) {
             case SplitType.ByEvenly:
                 return this.splitByEvenly();
             default:

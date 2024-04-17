@@ -1,9 +1,17 @@
-import {SplitType, TicketState} from "../types";
+import {
+    SplitType,
+    TicketSplitAdvancedOperatorName,
+    TicketSplitAdvanceOperatorOperator,
+    TicketSplitAdvanceOperatorOptions,
+    TicketState
+} from "../types";
 import {Fraction} from "../../Fraction";
 import {Splittable, TicketSplitStrategy} from "./interfaces";
 import {ticketSplitStrategies} from "./TicketSplitStrategyManager";
 import {EvenlySplitStrategy} from "./stategies";
 import {tap} from "lodash";
+import {ticketSplitAdvancedOperators} from "./TicketSplitAdvancedOperatorManager";
+import {TicketSplitEvenlyOperateAdvancedOptions, TicketSplitUnsplitToOperateAdvancedOptions} from "./operators";
 
 export class Ticket implements Splittable<Ticket> {
     constructor(readonly state: TicketState) {
@@ -73,6 +81,26 @@ export class Ticket implements Splittable<Ticket> {
         const strategy: EvenlySplitStrategy = ticketSplitStrategies.strategy(SplitType.ByEvenly) as EvenlySplitStrategy;
 
         return this.split(strategy.carryWays(ways));
+    }
+
+    splitAdvanced<
+        N extends TicketSplitAdvancedOperatorName,
+        Options extends TicketSplitAdvanceOperatorOptions<N>,
+        Operator extends TicketSplitAdvanceOperatorOperator<N>
+    >(operate: N, options: Options) {
+        const operator = ticketSplitAdvancedOperators.operator<Operator>(operate);
+
+        operator.operate(this, options);
+
+        this.redistributeSplitsPennies();
+    }
+
+    splitAdvancedByEvenly(options: TicketSplitEvenlyOperateAdvancedOptions) {
+        this.splitAdvanced(TicketSplitAdvancedOperatorName.Evenly, options);
+    }
+
+    splitAdvancedByUnsplitTo(options: TicketSplitUnsplitToOperateAdvancedOptions) {
+        this.splitAdvanced(TicketSplitAdvancedOperatorName.UnsplitTo, options);
     }
 
     redistributeSplitsPennies() {
