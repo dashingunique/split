@@ -2,6 +2,18 @@ import {TicketState, SplitType} from "../../types";
 import {cloneDeep} from "lodash";
 import {Fraction} from "../../../Fraction";
 
+function splitByEvenlyStrategy(ticket: Ticket, ways: number) {
+    const tab = cloneDeep(ticket);
+
+    tab.restTabFieldsBeforeSplit(ticket, ways, SplitType.ByEvenly);
+
+    ticket.addTab(tab);
+
+    ticket.clearTickerFieldsAfterSplit();
+
+    return ticket.splits();
+}
+
 export class Ticket {
     constructor(readonly state: TicketState) {
     }
@@ -24,6 +36,16 @@ export class Ticket {
 
     set parentTicketId(id: string) {
         this.state.parentTicketId = id;
+    }
+
+    split(strategy?: SplitType) {
+        const currentSplitType = strategy ?? SplitType.ByEvenly;
+        switch (currentSplitType) {
+            case SplitType.ByEvenly:
+                return this.splitByEvenly();
+            default:
+                throw new Error('not support split')
+        }
     }
 
     splitByEvenly(ways: number = 1): Ticket[] {
