@@ -1,16 +1,17 @@
-import {ItemState, SplitAdvanceOperateOptions, TicketSplitAdvancedOperatorName} from "../../types";
+import {ItemState, SplitAdvanceOperatePayload, TicketSplitAdvancedOperatorName} from "../../types";
 import {Ticket} from "../Ticket";
 import {TicketSplitAdvancedOperator} from "../interfaces";
 
-export interface TicketSplitEvenlyOperateAdvancedOptions extends SplitAdvanceOperateOptions {
-    tab: Ticket;
+export interface TicketSplitEvenlyOperateAdvancedPayload extends SplitAdvanceOperatePayload {
+    currentTab: Ticket;
+    otherTabs: Ticket[];
     item: ItemState;
 }
 
-export class EvenlyAdvancedOperator implements TicketSplitAdvancedOperator<TicketSplitEvenlyOperateAdvancedOptions> {
+export class EvenlyAdvancedOperator implements TicketSplitAdvancedOperator<TicketSplitEvenlyOperateAdvancedPayload> {
     readonly name: string = TicketSplitAdvancedOperatorName.Evenly;
 
-    operate(ticket: Ticket, options: TicketSplitEvenlyOperateAdvancedOptions): void {
-        console.log('EvenlyAdvanceOperator.operate', ticket, options);
+    operate(payload: TicketSplitEvenlyOperateAdvancedPayload): void {
+        console.log('EvenlyAdvanceOperator.operate', payload);
     }
 }

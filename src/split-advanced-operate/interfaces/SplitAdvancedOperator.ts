@@ -1,7 +1,5 @@
-import {Splittable} from "./Splittable";
-
-export interface SplitAdvancedOperator<T, O> {
+export interface SplitAdvancedOperator<O> {
     readonly name: string;
 
-    operate(splittable: Splittable<T>, options: O): void;
+    operate(payload: O): void;
 }

@@ -1,8 +1,9 @@
 import {
+    ItemState,
     SplitType,
     TicketSplitAdvancedOperatorName,
     TicketSplitAdvanceOperatorOperator,
-    TicketSplitAdvanceOperatorOptions,
+    TicketSplitAdvanceOperatorPayload,
     TicketState
 } from "../types";
 import {Fraction} from "../../Fraction";
@@ -11,7 +12,13 @@ import {ticketSplitStrategies} from "./TicketSplitStrategyManager";
 import {EvenlySplitStrategy} from "./stategies";
 import {tap} from "lodash";
 import {ticketSplitAdvancedOperators} from "./TicketSplitAdvancedOperatorManager";
-import {TicketSplitEvenlyOperateAdvancedOptions, TicketSplitUnsplitToOperateAdvancedOptions} from "./operators";
+import {TicketSplitEvenlyOperateAdvancedPayload} from "./operators";
+
+
+export type AdvancedByEvenlyPayload = {
+    currentTab: Ticket;
+    item: ItemState;
+}
 
 export class Ticket implements Splittable<Ticket> {
     constructor(readonly state: TicketState) {
@@ -85,21 +92,37 @@ export class Ticket implements Splittable<Ticket> {
 
     splitAdvanced<
         N extends TicketSplitAdvancedOperatorName,
-        Options extends TicketSplitAdvanceOperatorOptions<N>,
+        Options extends TicketSplitAdvanceOperatorPayload<N>,
         Operator extends TicketSplitAdvanceOperatorOperator<N>
     >(operate: N, options: Options) {
         const operator = ticketSplitAdvancedOperators.operator<Operator>(operate);
 
-        operator.operate(this, options);
+        operator.operate(options);
 
         this.redistributeSplitsPennies();
     }
 
-    splitAdvancedByEvenly(options: TicketSplitEvenlyOperateAdvancedOptions) {
+    splitAdvancedByEvenly(payload: AdvancedByEvenlyPayload) {
+        const  otherTabs = this.splits().filter(tab => tab.id !== payload.currentTab.id);
+
+        const options: TicketSplitEvenlyOperateAdvancedPayload = {
+            currentTab: payload.currentTab,
+            otherTabs,
+            item: payload.item
+        }
+
         this.splitAdvanced(TicketSplitAdvancedOperatorName.Evenly, options);
     }
 
-    splitAdvancedByUnsplitTo(options: TicketSplitUnsplitToOperateAdvancedOptions) {
+    splitAdvancedByUnsplitTo(payload: AdvancedByEvenlyPayload) {
+        const  otherTabs = this.splits().filter(tab => tab.id !== payload.currentTab.id);
+
+        const options: TicketSplitEvenlyOperateAdvancedPayload = {
+            currentTab: payload.currentTab,
+            otherTabs,
+            item: payload.item
+        }
+
         this.splitAdvanced(TicketSplitAdvancedOperatorName.UnsplitTo, options);
     }
 

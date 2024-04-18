@@ -1,8 +1,8 @@
 import {
-    EvenlyAdvancedOperator, TicketSplitEvenlyOperateAdvancedOptions,
-    TicketSplitUnsplitToOperateAdvancedOptions,
+    EvenlyAdvancedOperator, TicketSplitEvenlyOperateAdvancedPayload,
+    TicketSplitUnsplitToOperateAdvancedPayload,
     UnsplitToAdvancedOperator
-} from "../split-advance-operate/operators";
+} from "../split-advanced-operate/operators";
 
 export enum SplitType {
     None,
@@ -10,7 +10,7 @@ export enum SplitType {
     BySeat
 }
 
-export interface SplitAdvanceOperateOptions {}
+export interface SplitAdvanceOperatePayload {}
 
 export enum TicketSplitAdvancedOperatorName {
     UnsplitTo = 'unsplitTo',
@@ -20,13 +20,13 @@ export enum TicketSplitAdvancedOperatorName {
 export interface TicketSplitAdvanceOperatorMapping {
     [TicketSplitAdvancedOperatorName.UnsplitTo]: {
         operator: UnsplitToAdvancedOperator;
-        options: TicketSplitUnsplitToOperateAdvancedOptions;
+        payload: TicketSplitUnsplitToOperateAdvancedPayload;
     };
     [TicketSplitAdvancedOperatorName.Evenly]: {
         operator: EvenlyAdvancedOperator;
-        options: TicketSplitEvenlyOperateAdvancedOptions;
+        payload: TicketSplitEvenlyOperateAdvancedPayload;
     };
 }
 export type TicketSplitAdvanceOperatorInstance<N extends TicketSplitAdvancedOperatorName> = TicketSplitAdvanceOperatorMapping[N];
-export type TicketSplitAdvanceOperatorOptions<N extends TicketSplitAdvancedOperatorName> = TicketSplitAdvanceOperatorInstance<N>['options'];
+export type TicketSplitAdvanceOperatorPayload<N extends TicketSplitAdvancedOperatorName> = TicketSplitAdvanceOperatorInstance<N>['payload'];
 export type TicketSplitAdvanceOperatorOperator<N extends TicketSplitAdvancedOperatorName> = TicketSplitAdvanceOperatorInstance<N>['operator'];
