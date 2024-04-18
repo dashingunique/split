@@ -1,6 +1,8 @@
-import {TicketState, SplitType} from "../../types";
+import {SplitType, TicketState} from "../../types";
 import {cloneDeep} from "lodash";
-import {Fraction} from "../../../Fraction";
+import {defaultFraction, Fraction} from "../../../Fraction";
+
+export type TicketFieldsOptions = Partial<TicketState> & {ways?: number; parentTicket?: TicketState | Ticket};
 
 function splitByEvenlyStrategy(ticket: Ticket, ways: number) {
     const tab = cloneDeep(ticket);
@@ -51,7 +53,27 @@ export class Ticket {
     splitByEvenly(ways: number = 1): Ticket[] {
         const tab = cloneDeep(this);
 
-        tab.restTabFieldsBeforeSplit(this, ways, SplitType.ByEvenly);
+        restTabFieldsBeforeSplit(tab, {
+            splitType: SplitType.ByEvenly,
+            fraction: new Fraction(1, ways),
+            parentTicket: this
+        });
+
+        this.addTab(tab);
+
+        this.clearTickerFieldsAfterSplit();
+
+        return this.splits();
+    }
+
+    splitBySeat(): Ticket[] {
+        const tab = cloneDeep(this);
+
+        restTabFieldsBeforeSplit(tab, {
+            splitType: SplitType.BySeat,
+            fraction: new Fraction(1, 1),
+            parentTicket: this
+        });
 
         this.addTab(tab);
 
@@ -79,4 +101,13 @@ export class Ticket {
         this.state.adjustments = [];
         this.state.items = [];
     }
+}
+
+export function restTabFieldsBeforeSplit(ticket: TicketState, options: TicketFieldsOptions): void;
+export function restTabFieldsBeforeSplit(ticket: Ticket, options: TicketFieldsOptions): void;
+export function restTabFieldsBeforeSplit(ticket: TicketState | Ticket, options: TicketFieldsOptions): void {
+    ticket.id = options.id ?? 'new id';
+    ticket.splitType = options.splitType ?? SplitType.ByEvenly;
+    ticket.fraction = options.fraction ?? defaultFraction;
+    ticket.parentTicketId = options.parentTicket?.id ?? '';
 }

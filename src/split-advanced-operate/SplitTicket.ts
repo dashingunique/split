@@ -1,13 +1,13 @@
 import {Ticket} from "./Ticket";
 import {TicketState} from "../types";
-import {TicketSplitStrategy} from "./interfaces";
+import {SplitsRemovable, TicketSplitStrategy} from "./interfaces";
 
-export class SplitTicket extends Ticket {
+export class SplitTicket extends Ticket implements SplitsRemovable {
     constructor(state: TicketState) {
         super(state);
     }
 
-    split(strategy?: TicketSplitStrategy): Ticket[] {
+    split(strategy: TicketSplitStrategy): Ticket[] {
         this.removeSplits();
 
         const splits = super.split(strategy);

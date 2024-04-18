@@ -16,7 +16,8 @@ const ticket = new Ticket(defaultTicketState);
 
 console.log('---------------------------------------------------')
 console.log('use split method to split')
-const splits = ticket.split();
+const defaultSplitStrategy = ticketSplitStrategies.default<EvenlySplitStrategy>();
+const splits = ticket.split(defaultSplitStrategy);
 console.log('use split method to split down')
 console.log('splits', splits);
 console.log('---------------------------------------------------')

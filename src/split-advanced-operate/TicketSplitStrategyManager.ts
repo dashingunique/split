@@ -1,7 +1,25 @@
 import {SplitType} from "../types";
 import {TicketSplitStrategy} from "./interfaces";
+import {EvenlySplitStrategy} from "./stategies";
+import {BySeatSplitStrategy} from "../click-split-button/best/stategies";
 
 var _ticketSplitStrategyManager: TicketSplitStrategyManager | undefined = undefined;
+
+export type TicketSplitStrategyMapping = {
+    [SplitType.ByEvenly]: EvenlySplitStrategy;
+    [SplitType.BySeat]: BySeatSplitStrategy;
+}
+
+export type TicketSplitStrategyInstance<T extends SplitType> = T extends keyof TicketSplitStrategyMapping ?
+    TicketSplitStrategyMapping[T]
+    : undefined;
+
+export type CurrentTicketSplitType<T extends SplitType | undefined> = T extends undefined ?
+    ReturnType<TicketSplitStrategyManager['currentDefaultSplitType']> : T;
+
+export type SpecifyTicketSplitStrategy<T extends TicketSplitStrategy | undefined = undefined> = T extends undefined ?
+    TicketSplitStrategyInstance<CurrentTicketSplitType<undefined>>
+    : T;
 
 class TicketSplitStrategyManager {
     constructor(
@@ -11,12 +29,16 @@ class TicketSplitStrategyManager {
 
     }
 
-    strategy(type?: SplitType) {
+    strategy<T extends SplitType | undefined>(type?: T): TicketSplitStrategyInstance<CurrentTicketSplitType<T>> {
         return this.resolve(type);
     }
 
-    default(): TicketSplitStrategy {
-        return this.resolve();
+    currentDefaultSplitType(): SplitType {
+        return this.defaultSplitType;
+    }
+
+    default<T extends TicketSplitStrategy | undefined = undefined>(): SpecifyTicketSplitStrategy<T> {
+        return this.resolve() as SpecifyTicketSplitStrategy<T>;
     }
 
     addStrategy(strategy: TicketSplitStrategy): this;
@@ -39,7 +61,7 @@ class TicketSplitStrategyManager {
     }
 
 
-    protected resolve(type?: SplitType) {
+    protected resolve<T extends SplitType | undefined>(type?: T): TicketSplitStrategyInstance<CurrentTicketSplitType<T>> {
         const defaultSplitType = type ?? this.defaultSplitType;
 
         const strategy = this.strategies.get(defaultSplitType);
@@ -48,7 +70,7 @@ class TicketSplitStrategyManager {
             console.error(`type: [${defaultSplitType}] split strategy not found.`)
         }
 
-        return strategy!;
+        return strategy! as TicketSplitStrategyInstance<CurrentTicketSplitType<T>>;
     }
 }
 

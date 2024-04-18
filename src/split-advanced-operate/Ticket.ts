@@ -9,8 +9,6 @@ import {
 import {Fraction} from "../../Fraction";
 import {Splittable, TicketSplitStrategy} from "./interfaces";
 import {ticketSplitStrategies} from "./TicketSplitStrategyManager";
-import {EvenlySplitStrategy} from "./stategies";
-import {tap} from "lodash";
 import {ticketSplitAdvancedOperators} from "./TicketSplitAdvancedOperatorManager";
 import {TicketSplitEvenlyOperateAdvancedPayload} from "./operators";
 
@@ -68,14 +66,8 @@ export class Ticket implements Splittable<Ticket> {
         throw this.splits().length > 0;
     }
 
-    split(strategy?: TicketSplitStrategy) {
-        const currentStrategy = strategy ?? tap(ticketSplitStrategies.default(), (strategy) => {
-            if (strategy.type === SplitType.ByEvenly) {
-                (strategy as EvenlySplitStrategy).carryWays(1);
-            }
-        });
-
-        const tabs = currentStrategy.split(this);
+    split(strategy: TicketSplitStrategy) {
+        const tabs = strategy.split(this);
 
         tabs.forEach(tab => this.addTab(tab));
 
@@ -85,7 +77,7 @@ export class Ticket implements Splittable<Ticket> {
     }
 
     splitByEvenly(ways: number = 1) {
-        const strategy: EvenlySplitStrategy = ticketSplitStrategies.strategy(SplitType.ByEvenly) as EvenlySplitStrategy;
+        const strategy = ticketSplitStrategies.strategy(SplitType.ByEvenly);
 
         return this.split(strategy.carryWays(ways));
     }
